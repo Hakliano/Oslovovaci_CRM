@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+    {% block title %}Oslovovací CRM - Hlavní stránka{% endblock %}
+    
+    {% block content %}
+    <div class="container mt-5">
+        <!-- Horní text -->
+        <div class="text-center mb-5">
+            <h1 class="mb-4">Vítejte v Oslovovacím CRM</h1>
+            <p class="lead"> Tato Webová stránka byla připravena pro pohodlnou výpomoc na projektu Ostříham.top a v budouncnu na dalších Umíšto projektech. 
+                <br/>Pokud naplňujete databázi, nejvhodnější je pro Vás sekce přidat partnera. A pokud budete chtít oslovovat začněte nejprve na stránce Filtrování partnerů.</p>
+        
+                
+
+                <div class="container mt-5" style="margin-bottom: 15px; padding-bottom: 15px;">
+                    <!-- Statistiky banner -->
+                    <div class="row text-center" style="border: 2px solid #007BFF; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                        <div class="col-md-6 p-3" style="background-color: #FFCCCB;">
+                            <h5>Celkový počet partnerů:</h5>
+                            <p style="font-size: 1.4em; font-weight: bold;">{{ total_partners }}</p>
+                        </div>
+                        <div class="col-md-6 p-3" style="background-color: #CCE5FF;">
+                            <h5>Počet oslovených SMS:</h5>
+                            <p style="font-size: 1.4em; font-weight: bold;">{{ sms_responded }}</p>
+                        </div>
+                        <div class="col-md-6 p-3" style="background-color: #D4EDDA;">
+                            <h5>Počet oslovených Emailem:</h5>
+                            <p style="font-size: 1.4em; font-weight: bold;">{{ email_responded }}</p>
+                        </div>
+                        <div class="col-md-6 p-3" style="background-color: #FFF3CD;">
+                            <h5>Počet oslovených Telefonicky:</h5>
+                            <p style="font-size: 1.4em; font-weight: bold;">{{ call_responded }}</p>
+                        </div>
+                        <div class="col-md-6 p-3" style="background-color:rgb(118, 70, 207);">
+                            <h5>Počet zbývajících k oslovení:</h5>
+                            <p style="font-size: 1.4em; font-weight: bold;">{{ not_contacted }}</p>
+                        </div>
+                        <div class="col-md-6 p-3" style="background-color: #E2E3E5;">
+                            <h5>Počet partnerů na level 0:</h5>
+                            <p style="font-size: 1.4em; font-weight: bold;">{{ level_zero }}</p>
+                        </div>
+                        <div class="col-md-6 p-3" style="background-color: #D1ECF1;">
+                            <h5>Počet partnerů na placeném levelu:</h5>
+                            <p style="font-size: 1.4em; font-weight: bold;">{{ level_paid }}</p>
+                        </div>
+                        <div class="col-md-6 p-3" style="background-color:rgb(196, 56, 142);">
+                            <h5>Datum a čas:</h5>
+                            <p style="font-size: 1.4em; font-weight: bold; color:rgba(247, 244, 246, 0.76);">{{ current_datetime  }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+
+
+            {% if user.is_authenticated %}
+                <div>
+                    <h3>Již jste přihlášen jako <b>{{ user.username }}</b></h3>.
+                </div>
+            {% else %}
+                <div>
+                    <h3>Po výběru níže uvedených polí Vás systém povede k přihlášení. 
+                        <br />Hned poté Vás pustí tam kam jste si přáli.</h3>
+                </div>
+            {% endif %}
+
+
+
+<!-- Boxy s odkazy -->
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <a href="{% url 'add_partner' %}" class="text-decoration-none text-dark">
+                <div class="p-5 bg-light border rounded shadow-sm">
+                    <h4>Přidat Partnera</h4>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-4">
+            <a href="{% url 'partner_list' %}" class="text-decoration-none text-dark">
+                <div class="p-5 bg-light border rounded shadow-sm">
+                    <h4>Seznam Partnerů</h4>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-4">
+            <a href="{% url 'filter_partners' %}" class="text-decoration-none text-dark">
+                <div class="p-5 bg-light border rounded shadow-sm">
+                    <h4>Filtrovat Partnery</h4>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <a href="{% url 'add_osloveni' %}" class="text-decoration-none text-dark">
+                <div class="p-5 bg-light border rounded shadow-sm">
+                    <h4>Přidat Oslovení</h4>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-4">
+            <a href="{% url 'partners_summary' %}" class="text-decoration-none text-dark">
+                <div class="p-5 bg-light border rounded shadow-sm">
+                    <h4>Souhrn Oslovení</h4>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-4">
+            {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="text-decoration-none text-dark">
+                {% csrf_token %}
+                <div class="p-5 bg-light border rounded shadow-sm">
+                    <h4>Odhlásit se</h4>
+                </div>
+            </a>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">logout</button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}" class="text-decoration-none text-dark">
+                <div class="p-5 bg-light border rounded shadow-sm">
+                    <h4>Přihlásit se</h4>
+                </div>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+
+
+    <hr style="margin-bottom: 25px; padding-bottom: 25px;">
+
+    <h2>Statistiky uživatelů</h2>
+    
+    {% if user.is_authenticated %}
+    {% else %}
+        <div>
+            <p><i>Omlouváme se, ale statistiky jsou pro nepřihlášené uživatele zkryty</i></p>
+        </div>
+    {% endif %}
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Uživatel</th>
+            <th>Počet kontaktů</th>
+            <th>Úspěšné kontakty</th>
+            <th>Počet přidaných partnerů</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in user_stats %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.total_contacts }}</td>
+            <td>{{ user.successful_contacts }}</td>
+            <td>{{ user.created_partners }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+    <!-- Dolní text -->
+    <div class="text-center mt-5">
+        <p>Vážim si jakékoliv Vaší pomoci a věřím že bude odměněna</p>
+    </div>
+</div>
+{% endblock %}

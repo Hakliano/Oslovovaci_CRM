@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Detail Oslovení{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Detail Oslovení</h1>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <p><strong>Partner:</strong> {{ osloveni.partner.jmeno }}</p>
+            <p><strong>Způsob Oslovení:</strong> {{ osloveni.zpusob_osloveni.nazev }}</p>
+            <p><strong>Datum:</strong> {{ osloveni.datum|date:"d.m.Y H:i" }}</p>
+            <p><strong>Reakce:</strong> {{ osloveni.reakce.nazev }}</p>
+            <p><strong>Poznámky:</strong> {{ osloveni.description }}</p>
+        </div>
+    </div>
+    <a href="{% url 'partners_summary' %}" class="btn btn-primary mt-3">Zpět na shrnutí</a>
+</div>
+{% endblock %}
