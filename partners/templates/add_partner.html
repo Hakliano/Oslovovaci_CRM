@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Přidání partnera{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Přidání nového partnera</h1>
+<form method="post" class="card card-body shadow-sm">
+    {% csrf_token %}
+
+    <!-- Jméno partnera -->
+    <div class="mb-3">
+        <label for="jmeno" class="form-label">Jméno partnera <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="jmeno" name="jmeno" placeholder="Zadejte jméno partnera" required>
+    </div>
+
+    <!-- Jednatel -->
+    <div class="mb-3">
+        <label for="jednatel" class="form-label">Jednatel <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="jednatel" name="jednatel" placeholder="Zadejte jméno jednatele" required>
+    </div>
+
+    <!-- Email -->
+    <div class="mb-3">
+        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Zadejte emailovou adresu" required>
+    </div>
+
+    <!-- Telefon -->
+    <div class="mb-3">
+        <label for="telefon" class="form-label">Telefon <span class="text-danger">*</span></label>
+        <input type="tel" class="form-control" id="telefon" name="telefon" placeholder="Zadejte telefonní číslo" required>
+    </div>
+
+    <!-- Adresa -->
+    <div class="mb-3">
+        <label for="adresa" class="form-label">Adresa <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="adresa" name="adresa" placeholder="Zadejte adresu" required>
+    </div>
+
+    <!-- Instagram -->
+    <div class="mb-3">
+        <label for="instagram" class="form-label">Instagram</label>
+        <input type="url" class="form-control" id="instagram" name="instagram" placeholder="https://www.instagram.com/profil">
+    </div>
+
+    <!-- Facebook -->
+    <div class="mb-3">
+        <label for="facebook" class="form-label">Facebook</label>
+        <input type="url" class="form-control" id="facebook" name="facebook" placeholder="https://www.facebook.com/profil">
+    </div>
+
+    <!-- Uložit -->
+    <button type="submit" class="btn btn-primary">Uložit</button>
+</form>
+{% endblock %}

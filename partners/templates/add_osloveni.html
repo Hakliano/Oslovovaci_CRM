@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Přidat Oslovení{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Oslovení partnera</h1>
+
+
+
+<form method="post" class="card card-body shadow-sm">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="partner" class="form-label">Partner</label>
+        <select class="form-select" id="partner" name="partner_id" required>
+            <option value="" selected disabled>-- Vyberte partnera --</option>
+            {% for partner in partners %}
+            <option value="{{ partner.id }}">{{ partner.jmeno }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="zpusob_osloveni" class="form-label">Způsob Oslovení</label>
+        <select class="form-select" id="zpusob_osloveni" name="zpusob_osloveni" required>
+            <option value="" selected disabled>-- Vyberte způsob oslovení --</option>
+            {% for zpusob in zpusoby_osloveni %}
+            <option value="{{ zpusob.id }}">{{ zpusob.nazev }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="reakce" class="form-label">Reakce</label>
+        <select class="form-select" id="reakce" name="reakce" required>
+            <option value="" selected disabled>-- Vyberte reakci --</option>
+            {% for reakce in reakce_list %}
+            <option value="{{ reakce.id }}">{{ reakce.nazev }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Poznámky k oslovení</label>
+        <textarea class="form-control" id="description" name="description" rows="5" placeholder="Zadejte poznámky k oslovení..."></textarea>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Uložit</button>
+</form>
+
+<div class="mb-5">
+</div>
+
+
+
+<form method="post" action="{% url 'add_osloveni' %}">
+    {% csrf_token %}
+    <input type="hidden" name="partner_id" value="{{ partner_id }}">
+
+    <!-- Dropdown pro výběr způsobu oslovení -->
+    <div class="mb-3">
+        <label for="zpusobOsloveni" class="form-label">Způsob Oslovení</label>
+        <select id="zpusobOsloveni" class="form-select" onchange="showSection()">
+            <option value="" selected disabled>-- Vyberte způsob oslovení --</option>
+            <option value="sms">SMS</option>
+            <option value="email">Email</option>
+            <option value="call">Call Script</option>
+        </select>
+    </div>
+
+    <!-- Sekce pro SMS -->
+    <div id="smsSection" class="mb-3" style="display: none;">
+        <label for="smsText" class="form-label">Text SMS</label>
+        <textarea name="content_sms" id="smsText" class="form-control" rows="4">
+Dobrý den, chtěli bychom Vám nabídnout naši novou službu...
+        </textarea>
+    </div>
+
+    <!-- Sekce pro Email -->
+    <div id="emailSection" class="mb-3" style="display: none;">
+        <label for="emailSubject" class="form-label">Předmět Emailu</label>
+        <input type="text" name="subject_email" id="emailSubject" class="form-control" value="Speciální nabídka pro Vás">
+        <label for="emailBody" class="form-label mt-2">Obsah Emailu</label>
+        <textarea name="content_email" id="emailBody" class="form-control" rows="6">
+Vážený zákazníku,
+
+rádi bychom Vám nabídli naši novou službu...
+        </textarea>
+    </div>
+
+    <!-- Sekce pro Call Script -->
+    <div id="callSection" class="mb-3" style="display: none;">
+        <label for="callScript" class="form-label">Call Script</label>
+        <textarea name="content_call" id="callScript" class="form-control" rows="6">
+Dobrý den, dovolali jsme se správně k {{ partner_jmeno }}? 
+Rádi bychom Vám představili naši novou nabídku...
+        </textarea>
+    </div>
+
+    <!-- Tlačítko odeslat -->
+    <button type="submit" class="btn btn-success">Odeslat oslovení</button>
+</form>
+
+<script>
+    function showSection() {
+        // Skrytí všech sekcí
+        document.getElementById('smsSection').style.display = 'none';
+        document.getElementById('emailSection').style.display = 'none';
+        document.getElementById('callSection').style.display = 'none';
+
+        // Získání vybrané hodnoty
+        var selected = document.getElementById('zpusobOsloveni').value;
+
+        // Zobrazení příslušné sekce
+        if (selected === 'sms') {
+            document.getElementById('smsSection').style.display = 'block';
+        } else if (selected === 'email') {
+            document.getElementById('emailSection').style.display = 'block';
+        } else if (selected === 'call') {
+            document.getElementById('callSection').style.display = 'block';
+        }
+    }
+</script>
+{% endblock %}

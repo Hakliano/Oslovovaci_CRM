@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Filtrovat partnery{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Filtrovat partnery</h1>
+
+<!-- Formulář pro filtrování -->
+<form method="get" class="mb-4">
+    <div class="row">
+        <div class="col-md-4">
+            <label for="zpusob_osloveni">Způsob oslovení</label>
+            <select name="zpusob_osloveni" class="form-control">
+                <option value="">-- Vyberte --</option>
+                {% for zpusob in zpusoby_osloveni %}
+                    <option value="{{ zpusob.id }}">{{ zpusob.nazev }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <!-- Byl osloven -->
+        <div class="col-md-3">
+            <label for="osloven" class="form-label">Byl osloven?</label>
+            <select class="form-select" name="osloven" id="osloven">
+                <option value="">-- Vše --</option>
+                <option value="yes" {% if osloven_filter == "yes" %}selected{% endif %}>Ano</option>
+                <option value="no" {% if osloven_filter == "no" %}selected{% endif %}>Ne</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="level">Level</label>
+            <select name="level" class="form-control">
+                <option value="">-- Vyberte --</option>
+                {% for level in levels %}
+                    <option value="{{ level.id }}">{{ level.nazev }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="reakce">Reakce</label>
+            <select name="reakce" class="form-control">
+                <option value="">-- Vyberte --</option>
+                {% for r in reakce %}
+                    <option value="{{ r.id }}">{{ r.nazev }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Filtrovat</button>
+</form>
+
+<!-- Výpis partnerů -->
+<table class="table table-bordered mt-4">
+    <thead>
+        <tr>
+            <th>Jméno</th>
+            <th>Jednatel</th>
+            <th>Email</th>
+            <th>Způsob oslovení</th>
+            <th>Level</th>
+            <th>Reakce</th>
+            <th>Akce</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for partner in partners %}
+        <tr>
+            <td>{{ partner.jmeno }}</td>
+            <td>{{ partner.jednatel }}</td>
+            <td>{{ partner.email }}</td>
+            <td>{{ partner.partnerdetail.zpusob_osloveni.nazev }}</td>
+            <td>{{ partner.partnerdetail.level.nazev }}</td>
+            <td>{{ partner.partnerdetail.reakce.nazev }}</td>
+            <td>
+                <!-- Tlačítko pro otevření modálního okna -->
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#osloveniModal"
+                        onclick="setPartnerId('{{ partner.id }}')">
+                    Oslovit
+                </button></td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center">Žádní partneři nenalezeni.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<!-- Modal pro výběr způsobu oslovení -->
+<div class="modal fade" id="osloveniModal" tabindex="-1" aria-labelledby="osloveniModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="osloveniModalLabel">Vyberte způsob oslovení</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zavřít"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" id="osloveniForm" action="{% url 'add_osloveni' %}">
+            {% csrf_token %}
+            <input type="hidden" name="partner_id" id="partnerIdField">
+            
+            <div class="mb-3">
+              <label for="zpusobOsloveni" class="form-label">Způsob oslovení</label>
+              <select name="zpusob_osloveni" id="zpusobOsloveni" class="form-select" required>
+                <option value="SMS">SMS</option>
+                <option value="Email">Email</option>
+                <option value="Hlas">Hlas</option>
+              </select>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zrušit</button>
+              <button type="submit" class="btn btn-primary">Pokračovat</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+{% endblock %}
+
+
+<script>
+    function setPartnerId(partnerId) {
+      document.getElementById('partnerIdField').value = partnerId;
+    }
+  </script>
+  

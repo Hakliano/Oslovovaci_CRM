@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Shrnutí Partnerů{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Shrnutí Partnerů</h1>
+    
+    <!-- Tabulka se seznamem partnerů -->
+    <table class="table table-bordered table-hover shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Název Partnera</th>
+                <th scope="col">Telefonní číslo</th>
+                <th scope="col">Poslední Oslovení</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for partner in partners %}
+            <tr>
+                <td>{{ partner.jmeno }}</td>
+                <td>{{ partner.telefon }}</td>
+                <td>
+                    {% if partner.posledni_osloveni %}
+                        {{ partner.posledni_osloveni.zpusob_osloveni.nazev }} - {{ partner.posledni_osloveni.datum|date:"d.m.Y H:i" }}
+                    {% else %}
+                        Žádné oslovení
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center">Žádní partneři nebyli nalezeni.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Odhlášení{% endblock %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <h1>Úspěšně jste se odhlásili</h1>
+    <p>Děkujeme za použití aplikace!</p>
+    <a href="{% url 'login' %}" class="btn btn-primary">Přihlásit se znovu</a>
+</div>
+{% endblock %}
