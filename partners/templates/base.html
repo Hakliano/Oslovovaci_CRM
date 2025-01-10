@@ -11,7 +11,7 @@
 </head>
 <body>
     <!-- Header s navigací -->
-    <header id="header-v2-color" class="bg-dark text-white shadow-sm">
+    <header class="{% if branch_name == 'develop' %}bg-danger{% elif branch_name == 'main' %}bg-dark{% else %}bg-secondary{% endif %} text-white shadow-sm">
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
                 <!-- Logo vlevo -->
