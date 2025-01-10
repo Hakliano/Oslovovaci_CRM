@@ -3,107 +3,109 @@
 {% block title %}Seznam partnerů{% endblock %}
 
 {% block content %}
+
 <h1 class="mb-4">Seznam partnerů</h1>
+<div style="overflow-x:auto">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Jméno</th>
+                <th>Jednatel</th>
+                <th>Email</th>
+                <th>Telefon</th>
+                <th>Způsob oslovení</th>
+                <th>Level</th>
+                <th>Reakce</th>
+                <th>Posledni osloveni</th>
+                <th>Odeslat Email</th>
+                <th>Editovat oslovení</th>
+                <th>Uložit</th>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Jméno</th>
-            <th>Jednatel</th>
-            <th>Email</th>
-            <th>Telefon</th>
-            <th>Způsob oslovení</th>
-            <th>Level</th>
-            <th>Reakce</th>
-            <th>Posledni osloveni</th>
-            <th>Odeslat Email</th>
-            <th>Editovat oslovení</th>
-            <th>Uložit</th>
-
-        </tr>
-    </thead>
-    <tbody>
-        {% for partner in partners %}
-        <tr>
-            <form method="post">
-                {% csrf_token %}
-                <td>{{ partner.jmeno }}</td>
-                <td>
-                    {% if partner.jednatel %}
-                        {{ partner.jednatel }}
-                    {% else %}
-                        <span class="text-muted">Žádný jednatel</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if partner.email %}
-                        {{ partner.email }}
-                    {% else %}
-                        <span class="text-muted">Žádný email</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if partner.telefon %}
-                        {{ partner.telefon }}
-                    {% else %}
-                        <span class="text-muted">Žádné číslo</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <select name="zpusob_osloveni" class="form-control">
-                        {% for zpusob in zpusoby_osloveni %}
-                        <option value="{{ zpusob.id }}" {% if partner.partnerdetail.zpusob_osloveni.id == zpusob.id %}selected{% endif %}>
-                            {{ zpusob.nazev }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </td>
-                <td>
-                    <select name="level" class="form-control">
-                        {% for level in levels %}
-                        <option value="{{ level.id }}" {% if partner.partnerdetail.level.id == level.id %}selected{% endif %}>
-                            {{ level.nazev }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </td>
-                <td>
-                    <select name="reakce" class="form-control">
-                        {% for r in reakce %}
-                        <option value="{{ r.id }}" {% if partner.partnerdetail.reakce.id == r.id %}selected{% endif %}>
-                            {{ r.nazev }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </td>
-                <td>
-                    {% if partner.posledni_osloveni %}
-                        {{ partner.posledni_osloveni.zpusob_osloveni.nazev }} <br />({{ partner.posledni_osloveni.datum|date:"d.m.Y H:i" }})
-                    {% else %}
-                        Neosloven
-                    {% endif %}
-                </td>
-                <td>
-                    {% if partner.email %}
-                        <a href="mailto:{{ partner.email }}" class="btn btn-primary btn-sm">
-                            Odeslat e-mail
+            </tr>
+        </thead>
+        <tbody>
+            {% for partner in partners %}
+            <tr>
+                <form method="post">
+                    {% csrf_token %}
+                    <td>{{ partner.jmeno }}</td>
+                    <td>
+                        {% if partner.jednatel %}
+                            {{ partner.jednatel }}
+                        {% else %}
+                            <span class="text-muted">Žádný jednatel</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if partner.email %}
+                            {{ partner.email }}
+                        {% else %}
+                            <span class="text-muted">Žádný email</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if partner.telefon %}
+                            {{ partner.telefon }}
+                        {% else %}
+                            <span class="text-muted">Žádné číslo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <select name="zpusob_osloveni" class="form-control">
+                            {% for zpusob in zpusoby_osloveni %}
+                            <option value="{{ zpusob.id }}" {% if partner.partnerdetail.zpusob_osloveni.id == zpusob.id %}selected{% endif %}>
+                                {{ zpusob.nazev }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select name="level" class="form-control">
+                            {% for level in levels %}
+                            <option value="{{ level.id }}" {% if partner.partnerdetail.level.id == level.id %}selected{% endif %}>
+                                {{ level.nazev }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select name="reakce" class="form-control">
+                            {% for r in reakce %}
+                            <option value="{{ r.id }}" {% if partner.partnerdetail.reakce.id == r.id %}selected{% endif %}>
+                                {{ r.nazev }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        {% if partner.posledni_osloveni %}
+                            {{ partner.posledni_osloveni.zpusob_osloveni.nazev }} <br />({{ partner.posledni_osloveni.datum|date:"d.m.Y H:i" }})
+                        {% else %}
+                            Neosloven
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if partner.email %}
+                            <a href="mailto:{{ partner.email }}" class="btn btn-primary btn-sm">
+                                Odeslat e-mail
+                            </a>
+                        {% else %}
+                            <span class="text-muted">Žádný e-mail</span>
+                        {% endif %}
+                    </td>
+                    
+                    <td>
+                        <a href="{% url 'add_osloveni' %}?partner_id={{ partner.id }}" class="btn btn-warning btn-sm">
+                            Editovat oslovení
                         </a>
-                    {% else %}
-                        <span class="text-muted">Žádný e-mail</span>
-                    {% endif %}
-                </td>
-                
-                <td>
-                    <a href="{% url 'add_osloveni' %}?partner_id={{ partner.id }}" class="btn btn-warning btn-sm">
-                        Editovat oslovení
-                    </a>
-                </td>
-                <td>
-                    <button type="submit" class="btn btn-success" name="partner_id" value="{{ partner.id }}">Uložit</button>
-                </td>
-            </form>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                    </td>
+                    <td>
+                        <button type="submit" class="btn btn-success" name="partner_id" value="{{ partner.id }}">Uložit</button>
+                    </td>
+                </form>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
