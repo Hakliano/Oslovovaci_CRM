@@ -61,4 +61,6 @@ class Osloveni(models.Model):
     description = models.TextField(blank=True, null=True)  # Nové pole pro poznámky
 
     def __str__(self):
-        return f"Oslovení: {self.partner.jmeno} - {self.zpusob_osloveni.nazev} ({self.datum})"
+        zpusob_osloveni = self.zpusob_osloveni.nazev if self.zpusob_osloveni else "Nezadáno"
+        reakce = self.reakce.nazev if self.reakce else "Nezadáno"
+        return f"{self.partner.jmeno} - {zpusob_osloveni} - {reakce} ({self.datum.strftime('%Y-%m-%d %H:%M:%S')})"
