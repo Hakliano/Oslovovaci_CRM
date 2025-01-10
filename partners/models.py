@@ -45,7 +45,10 @@ class PartnerDetail(models.Model):
 
 
     def __str__(self):
-        return f"{self.partner.jmeno} - {self.zpusob_osloveni.nazev} - {self.level.nazev} - {self.reakce.nazev}"
+        zpusob_osloveni = self.zpusob_osloveni.nazev if self.zpusob_osloveni else "Nezadáno"
+        level = self.level.nazev if self.level else "Nezadáno"
+        reakce = self.reakce.nazev if self.reakce else "Nezadáno"
+        return f"{self.partner.jmeno} - {zpusob_osloveni} - {level} - {reakce}"
 
 
 
