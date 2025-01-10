@@ -29,6 +29,7 @@ ALLOWED_HOSTS = ['nuna91.pythonanywhere.com']
 
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
