@@ -16,40 +16,22 @@
                 <th>Způsob oslovení</th>
                 <th>Level</th>
                 <th>Reakce</th>
-                <th>Posledni osloveni</th>
+                <th>Poslední oslovení</th>
                 <th>Odeslat Email</th>
                 <th>Editovat oslovení</th>
                 <th>Uložit</th>
-
+                <th>Smazat</th>
             </tr>
         </thead>
         <tbody>
-            {% for partner in partners %}
+            {% for partner in page_obj %}
             <tr>
                 <form method="post">
                     {% csrf_token %}
                     <td>{{ partner.jmeno }}</td>
-                    <td>
-                        {% if partner.jednatel %}
-                            {{ partner.jednatel }}
-                        {% else %}
-                            <span class="text-muted">Žádný jednatel</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if partner.email %}
-                            {{ partner.email }}
-                        {% else %}
-                            <span class="text-muted">Žádný email</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if partner.telefon %}
-                            {{ partner.telefon }}
-                        {% else %}
-                            <span class="text-muted">Žádné číslo</span>
-                        {% endif %}
-                    </td>
+                    <td>{{ partner.jednatel|default:"Žádný jednatel" }}</td>
+                    <td>{{ partner.email|default:"Žádný email" }}</td>
+                    <td>{{ partner.telefon|default:"Žádné číslo" }}</td>
                     <td>
                         <select name="zpusob_osloveni" class="form-control">
                             {% for zpusob in zpusoby_osloveni %}
@@ -86,21 +68,19 @@
                     </td>
                     <td>
                         {% if partner.email %}
-                            <a href="mailto:{{ partner.email }}" class="btn btn-primary btn-sm">
-                                Odeslat e-mail
-                            </a>
+                            <a href="mailto:{{ partner.email }}" class="btn btn-primary btn-sm">Odeslat e-mail</a>
                         {% else %}
                             <span class="text-muted">Žádný e-mail</span>
                         {% endif %}
                     </td>
-                    
                     <td>
-                        <a href="{% url 'add_osloveni' %}?partner_id={{ partner.id }}" class="btn btn-warning btn-sm">
-                            Editovat oslovení
-                        </a>
+                        <a href="{% url 'add_osloveni' %}?partner_id={{ partner.id }}" class="btn btn-warning btn-sm">Editovat oslovení</a>
                     </td>
                     <td>
                         <button type="submit" class="btn btn-success" name="partner_id" value="{{ partner.id }}">Uložit</button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger delete-button" data-partner-id="{{ partner.id }}" data-partner-name="{{ partner.jmeno }}">Smazat</button>
                     </td>
                 </form>
             </tr>
@@ -108,4 +88,79 @@
         </tbody>
     </table>
 </div>
+
+<div>
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; První</a>
+            <a href="?page={{ page_obj.previous_page_number }}">Předchozí</a>
+        {% endif %}
+
+        <span>Stránka {{ page_obj.number }} z {{ page_obj.paginator.num_pages }}</span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Další</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Poslední &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+<!-- Modal pro potvrzení mazání -->
+<div id="delete-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); z-index: 1000;">
+    <p>Pro smazání partnera napište <strong>DELETE</strong> do pole níže:</p>
+    <p id="partner-name"></p>
+    <input type="text" id="delete-confirmation" class="form-control" placeholder="Napište DELETE">
+    <div style="margin-top: 20px;">
+        <button id="confirm-delete" class="btn btn-danger">Smazat</button>
+        <button id="cancel-delete" class="btn btn-secondary">Zrušit</button>
+    </div>
+</div>
+<div id="delete-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteButtons = document.querySelectorAll('.delete-button');
+        const deleteModal = document.getElementById('delete-modal');
+        const deleteOverlay = document.getElementById('delete-overlay');
+        const confirmDeleteButton = document.getElementById('confirm-delete');
+        const cancelDeleteButton = document.getElementById('cancel-delete');
+        const deleteConfirmationInput = document.getElementById('delete-confirmation');
+        const partnerNameElement = document.getElementById('partner-name');
+        let partnerIdToDelete = null;
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                partnerIdToDelete = this.getAttribute('data-partner-id');
+                partnerNameElement.textContent = `Jméno partnera: ${this.getAttribute('data-partner-name')}`;
+                deleteModal.style.display = 'block';
+                deleteOverlay.style.display = 'block';
+            });
+        });
+
+        cancelDeleteButton.addEventListener('click', function () {
+            deleteModal.style.display = 'none';
+            deleteOverlay.style.display = 'none';
+            deleteConfirmationInput.value = ''; // Vymaže text
+            partnerIdToDelete = null;
+        });
+
+        confirmDeleteButton.addEventListener('click', function () {
+            if (deleteConfirmationInput.value.trim().toUpperCase() === 'DELETE') {
+                const deleteForm = document.createElement('form');
+                deleteForm.method = 'POST';
+                deleteForm.action = `{% url 'delete_partner' %}`;
+                deleteForm.innerHTML = `
+                    {% csrf_token %}
+                    <input type="hidden" name="partner_id" value="${partnerIdToDelete}">
+                `;
+                document.body.appendChild(deleteForm);
+                deleteForm.submit();
+            } else {
+                alert('Pro smazání napište správně "DELETE".');
+            }
+        });
+    });
+</script>
+
 {% endblock %}

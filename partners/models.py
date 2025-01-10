@@ -4,7 +4,7 @@ from django.contrib.auth.models import User  # Import pro Django uživatele
 # Model pro údaje o partnerovi
 class Partner(models.Model):
     jmeno = models.CharField(max_length=100)
-    jednatel = models.CharField(max_length=100)
+    jednatel = models.CharField(max_length=100, null=True)
     email = models.EmailField()
     telefon = models.CharField(max_length=15)
     adresa = models.CharField(max_length=200)

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}Partner smazán{% endblock %}
+
+{% block content %}
+<h1 class="text-success">Partner byl úspěšně smazán</h1>
+<p>Partner <strong>{{ partner_name }}</strong> byl úspěšně odstraněn z databáze.</p>
+
+<a href="{% url 'partner_list' %}" class="btn btn-primary mt-3">Zpět do seznamu partnerů</a>
+{% endblock %}

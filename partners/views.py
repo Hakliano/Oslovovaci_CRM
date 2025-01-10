@@ -7,6 +7,9 @@ from django.db.models import Count, Q
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.shortcuts import redirect
+from django.core.paginator import Paginator
+from django.http import HttpResponse
+
 
 
 def logoutpage(request):
@@ -28,6 +31,7 @@ def add_partner(request):
         instagram = request.POST.get('instagram')
         facebook = request.POST.get('facebook')
 
+
         # Uložení nového partnera do databáze
         partner = Partner.objects.create(
             jmeno=jmeno,
@@ -36,7 +40,8 @@ def add_partner(request):
             telefon=telefon,
             adresa=adresa,
             instagram=instagram,
-            facebook=facebook
+            facebook=facebook,
+            created_by=request.user
         )
 
         # Nastavení výchozí hodnoty pro způsob oslovení
@@ -62,12 +67,24 @@ def partner_list(request):
     levels = Level.objects.all()
     reakce = Reakce.objects.all()
 
+    per_page = request.GET.get('per_page', 10)
+    try:
+        per_page = int(per_page)  # Zajistí, že per_page je číslo
+    except ValueError:
+        per_page = 10  # Fallback na defaultní hodnotu
+    data = Partner.objects.select_related('partnerdetail')
+    paginator = Paginator(data, per_page)  # 10 partnerů na stránku
+    page_number = request.GET.get('page')  # Číslo stránky z URL
+    page_obj = paginator.get_page(page_number)  # Vrátí stránku
+
     if request.method == 'POST':
         # Získání dat z formuláře
         partner_id = request.POST.get('partner_id')
         zpusob_id = request.POST.get('zpusob_osloveni')
         level_id = request.POST.get('level')
         reakce_id = request.POST.get('reakce')
+
+        
 
         # Kontrola a aktualizace záznamu
         if partner_id and zpusob_id and level_id and reakce_id:
@@ -115,10 +132,12 @@ def partner_list(request):
 
         
     context = {
+        'page_obj': page_obj,
         'partners': partners,
         'zpusoby_osloveni': zpusoby_osloveni,
         'levels': levels,
         'reakce': reakce,
+        'per_page': per_page,
     }
     return render(request, 'partner_list.html', context)
 
@@ -286,3 +305,12 @@ def user_statistics(request):
 
     return users
 
+def delete_partner(request):
+    if request.method == "POST":
+        partner_id = request.POST.get('partner_id')
+        if partner_id:
+            partner = get_object_or_404(Partner, id=partner_id)
+            partner_name = partner.jmeno
+            partner.delete()
+            return render(request, 'partner_delete_success.html', {'partner_name': partner_name})
+    return redirect('partner_list')  # Pokud není POST, přesměruj zpět na seznam
