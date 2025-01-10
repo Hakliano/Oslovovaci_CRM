@@ -297,7 +297,7 @@ def user_statistics(request):
     users = User.objects.annotate(
         total_contacts=Count('osloveni'),  # Počet všech kontaktů
         successful_contacts=Count('osloveni', filter=Q(osloveni__reakce__nazev="Placená")),  # Úspěšné kontakty
-        created_partners=Count('partner')  # Kolik partnerů uživatel přidal
+        created_partners=Count('partner', distinct=True)  # Kolik partnerů uživatel přidal
     )
 
     # Pokud chceš pracovat jen s aktuálním uživatelem:
