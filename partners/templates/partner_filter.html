@@ -8,7 +8,18 @@
 <!-- Formulář pro filtrování -->
 <form method="get" class="mb-4">
     <div class="row">
-        <div class="col-md-4">
+      <div class="col-md-4">
+        <label for="partner">Jméno</label>
+        <input type="text" name="partner" id="partner" class="form-control" placeholder="Zadejte část jména"
+               value="{{ partner_name }}">
+    </div>  
+      
+      
+      
+      
+      
+      
+      <div class="col-md-4">
             <label for="zpusob_osloveni">Způsob oslovení</label>
             <select name="zpusob_osloveni" class="form-control">
                 <option value="">-- Vyberte --</option>
@@ -27,6 +38,10 @@
             </select>
         </div>
 
+       
+        
+      
+        
         <div class="col-md-4">
             <label for="level">Level</label>
             <select name="level" class="form-control">

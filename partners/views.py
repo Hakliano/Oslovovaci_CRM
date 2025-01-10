@@ -157,6 +157,7 @@ def filter_partners(request):
     level_id = request.GET.get('level')
     reakce_id = request.GET.get('reakce')
     osloven = request.GET.get('osloven')  # Nový filtr pro oslovení
+    partner_name = request.GET.get('partner')  # Nový filtr pro jméno partnera
 
 
     # Základní queryset
@@ -174,7 +175,8 @@ def filter_partners(request):
             partners = partners.filter(osloveni__isnull=False)
         elif osloven == "no":
             partners = partners.filter(osloveni__isnull=True)
-    
+    if partner_name:  # Filtr podle jména
+        partners = partners.filter(jmeno__icontains=partner_name)
     
     context = {
         'partners': partners,
@@ -182,6 +184,8 @@ def filter_partners(request):
         'levels': levels,
         'reakce': reakce,
         'osloven_filter': osloven,
+        'partner_name': partner_name,  
+
 
     }
     return render(request, 'partner_filter.html', context)
