@@ -3,6 +3,15 @@
 {% block title %}Seznam partnerů{% endblock %}
 
 {% block content %}
+<form method="get" action="{% url 'partner_list' %}">
+    <input type="text" name="partner" placeholder="Hledat podle jména" value="{{ partner_name }}">
+    <input type="hidden" name="per_page" value="{{ per_page }}"> <!-- Zajišťuje zachování stránkování -->
+    <button type="submit" class="btn btn-primary">Filtruj</button>
+    <a href="{% url 'partner_list' %}?_={{ timestamp }}" class="btn btn-secondary">Resetuj filtr</a>
+
+</form>
+
+
 
 <h1 class="mb-4">Seznam partnerů</h1>
 <div style="overflow-x:auto">
@@ -13,6 +22,7 @@
                 <th>Jednatel</th>
                 <th>Email</th>
                 <th>Telefon</th>
+                <th>Město</th>
                 <th>Způsob oslovení</th>
                 <th>Level</th>
                 <th>Reakce</th>
@@ -32,6 +42,7 @@
                     <td>{{ partner.jednatel|default:"Žádný jednatel" }}</td>
                     <td>{{ partner.email|default:"Žádný email" }}</td>
                     <td>{{ partner.telefon|default:"Žádné číslo" }}</td>
+                    <td>{{ partner.adresa|default:"Žádné číslo"|slice:":10" }}</td>
                     <td>
                         <select name="zpusob_osloveni" class="form-control">
                             {% for zpusob in zpusoby_osloveni %}
@@ -161,6 +172,14 @@
             }
         });
     });
+
+
+
+        function setPartnerId(partnerId) {
+          document.getElementById('partnerIdField').value = partnerId;
+        }
+
+
 </script>
 
 {% endblock %}
