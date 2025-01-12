@@ -62,31 +62,90 @@ def add_partner(request):
 @login_required
 
 def partner_list(request):
+    # Získání hodnot filtrů z GET parametrů
+    zpusob_id = request.GET.get('zpusob_osloveni', None)
+    level_id = request.GET.get('level', None)
+    reakce_id = request.GET.get('reakce', None)
+    osloven = request.GET.get('osloven', None)  # Nový filtr pro oslovení
+    partner_name = request.GET.get('partner', None)  # Filtr podle jména
+    adresa = request.GET.get('adresa', None)  # Filtr podle města
+    per_page = request.GET.get('per_page', 10)
+
+    # Zajistěte, že per_page je číslo
+    try:
+        per_page = int(per_page)
+    except ValueError:
+        per_page = 10
+
+    # Základní queryset
     partners = Partner.objects.all()
+
+    # Aplikace filtrů
+    if zpusob_id:
+        partners = partners.filter(partnerdetail__zpusob_osloveni_id=zpusob_id)
+    if level_id:
+        partners = partners.filter(partnerdetail__level_id=level_id)
+    if reakce_id:
+        partners = partners.filter(partnerdetail__reakce_id=reakce_id)
+    if osloven:  # Ověření existence filtru
+        if osloven == "yes":
+            partners = partners.filter(osloveni__isnull=False)
+        elif osloven == "no":
+            partners = partners.filter(osloveni__isnull=True)
+    if partner_name:  # Filtr podle jména
+        partners = partners.filter(jmeno__icontains=partner_name)
+    if adresa:
+        adresa = adresa.strip().lower()
+        partners = partners.filter(adresa__icontains=adresa)
+
+    # Paginátor na filtrovaný queryset
+    paginator = Paginator(partners, per_page)
+    page_number = request.GET.get('page')  # Číslo stránky z URL
+    page_obj = paginator.get_page(page_number)
+
+    # Načtení pomocných dat pro šablonu
     zpusoby_osloveni = ZpusobOsloveni.objects.all()
     levels = Level.objects.all()
     reakce = Reakce.objects.all()
 
-    per_page = request.GET.get('per_page', 10)
-    try:
-        per_page = int(per_page)  # Zajistí, že per_page je číslo
-    except ValueError:
-        per_page = 10  # Fallback na defaultní hodnotu
-    data = Partner.objects.select_related('partnerdetail')
-    paginator = Paginator(data, per_page)  # 10 partnerů na stránku
-    page_number = request.GET.get('page')  # Číslo stránky z URL
-    page_obj = paginator.get_page(page_number)  # Vrátí stránku
+    # Zajištění výchozích detailů partnerů
+    for partner in partners:
+        PartnerDetail.objects.get_or_create(
+            partner=partner,
+            defaults={
+                'zpusob_osloveni': ZpusobOsloveni.objects.get_or_create(nazev="Zatím nic")[0],
+                'level': None,
+                'reakce': None
+            }
+        )
 
+    # Přidání posledního oslovení pro každého partnera
+    for partner in partners:
+        posledni_osloveni = partner.osloveni.order_by('-datum').first()
+        partner.posledni_osloveni = posledni_osloveni
+
+    # Kontext pro šablonu
+    context = {
+        'page_obj': page_obj,
+        'partners': partners,
+        'zpusoby_osloveni': zpusoby_osloveni,
+        'levels': levels,
+        'reakce': reakce,
+        'osloven_filter': osloven,
+        'partner_name': partner_name,
+        'adresa': adresa,
+        'per_page': per_page,
+        'timestamp': datetime.now().timestamp(),  # Přidání dynamického timestampu
+
+    }
+
+    # Zpracování POST požadavku (uložení dat)
     if request.method == 'POST':
-        # Získání dat z formuláře
         partner_id = request.POST.get('partner_id')
         zpusob_id = request.POST.get('zpusob_osloveni')
         level_id = request.POST.get('level')
         reakce_id = request.POST.get('reakce')
 
-        
-
-        # Kontrola a aktualizace záznamu
         if partner_id and zpusob_id and level_id and reakce_id:
             partner = Partner.objects.get(id=partner_id)
             zpusob_osloveni = ZpusobOsloveni.objects.get(id=zpusob_id)
@@ -99,48 +158,18 @@ def partner_list(request):
                 defaults={
                     'zpusob_osloveni': zpusob_osloveni,
                     'level': level,
-                    'reakce': reakce
+                    'reakce': reakce,
                 }
             )
             print(f"Uloženo: {partner.jmeno}, Způsob: {zpusob_osloveni.nazev}, Level: {level.nazev}, Reakce: {reakce.nazev}")
         else:
             print("Některá data nejsou vyplněna!")
 
-        # Přesměrování zpět na partner_list pro načtení nových dat
+        # Přesměrování zpět na partner_list po uložení
         return redirect('partner_list')
 
-        # Přidání informace o posledním oslovení každého partnera
-        for partner in partners:
-            partner.latest_osloveni = partner.osloveni.order_by('-datum').first()
-
-    # Zajištění, že každý partner má vytvořený výchozí PartnerDetail
-    for partner in partners:
-        PartnerDetail.objects.get_or_create(
-            partner=partner,
-            defaults={
-                'zpusob_osloveni': ZpusobOsloveni.objects.get_or_create(nazev="Zatím nic")[0],
-                'level': None,
-                'reakce': None
-            }
-        )
-
-
-# Přidání posledního oslovení pro každého partnera
-    for partner in partners:
-        posledni_osloveni = partner.osloveni.order_by('-datum').first()
-        partner.posledni_osloveni = posledni_osloveni
-
-        
-    context = {
-        'page_obj': page_obj,
-        'partners': partners,
-        'zpusoby_osloveni': zpusoby_osloveni,
-        'levels': levels,
-        'reakce': reakce,
-        'per_page': per_page,
-    }
+    # Vykreslení šablony
     return render(request, 'partner_list.html', context)
-
 
 
 # Funkce pro filtrování partnerů
