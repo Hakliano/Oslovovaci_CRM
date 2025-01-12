@@ -9,6 +9,7 @@ from django.contrib.auth import logout
 from django.shortcuts import redirect
 from django.core.paginator import Paginator
 from django.http import HttpResponse
+from django.contrib import messages
 
 
 
@@ -17,12 +18,19 @@ def logoutpage(request):
 
 # Funkce pro přidání nového partnera
 @login_required
-
-
-
 def add_partner(request):
-    if request.method == 'POST':
-        # Získání dat z formuláře
+    # Načtení všech partnerů (základní queryset)
+    partners = Partner.objects.all()
+
+    # Získání hodnoty filtru z GET parametrů
+    partner_name = request.GET.get('partner', None)
+
+    # Filtrování podle jména partnera
+    if partner_name:
+        partners = partners.filter(jmeno__icontains=partner_name)
+
+    if request.method == 'POST' and 'add_partner_form' in request.POST:
+        # Zpracování formuláře pro přidání nového partnera
         jmeno = request.POST.get('jmeno')
         jednatel = request.POST.get('jednatel')
         email = request.POST.get('email')
@@ -30,7 +38,6 @@ def add_partner(request):
         adresa = request.POST.get('adresa')
         instagram = request.POST.get('instagram')
         facebook = request.POST.get('facebook')
-
 
         # Uložení nového partnera do databáze
         partner = Partner.objects.create(
@@ -53,10 +60,21 @@ def add_partner(request):
             reakce=None
         )
 
-        return redirect('add_partner')  # Přesměrování zpět na formulář
+        # Přidání zprávy o úspěšném přidání
+        messages.success(request, f"Partner {jmeno} byl úspěšně přidán.")
 
-    return render(request, 'add_partner.html')
+        # Přesměrování s uchováním hodnoty filtru (pokud existuje)
+        redirect_url = f"{request.path}?partner={partner_name}" if partner_name else request.path
+        return redirect(redirect_url)
 
+    # Kontext pro šablonu
+    context = {
+        'partners': partners,
+        'partner_name': partner_name,  # Vracíme aktuální hodnotu filtru pro šablonu
+    }
+
+    # Vykreslení šablony
+    return render(request, 'add_partner.html', context)
 
 # Funkce pro výpis partnerů a editaci detailů
 @login_required

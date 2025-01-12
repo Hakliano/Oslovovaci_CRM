@@ -10,6 +10,13 @@
     <link rel="stylesheet" href="{% static 'css/fakeCSS.css' %}">
 </head>
 <body>
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <p class="alert alert-{{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
     <!-- Header s navigací -->
     <header class="{% if branch_name == 'develop' %}bg-danger{% elif branch_name == 'main' %}bg-dark{% else %}bg-secondary{% endif %} text-white shadow-sm">
         <nav class="navbar navbar-expand-lg navbar-dark">
